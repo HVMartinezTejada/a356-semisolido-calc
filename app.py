@@ -2,8 +2,10 @@
 Calculadora de Proceso Semisólido — Aleación A356
 Oh*(T): Número de Ohnesorge Modificado para Fabricación Aditiva en Estado Semisólido
 
-Autores: Investigación en curso
-Versión: 1.0
+Autores: JE. Puerta-Altamiranda & HV Martínez-Tejada
+Versión: 1.0 - 2026 
+EXPERIMENTATION AND SIMULATION OF
+ULTRASOUND-ASSISTED SEMISOLID METAL 3D PRINTING 
 """
 
 import streamlit as st
