@@ -471,86 +471,126 @@ with tab4:
 
 # ─── Tab 5: Nota teórica ────────────────────
 with tab5:
-    st.subheader("ℹ️ Significado y relevancia de Oh\\*(T)")
+    st.subheader("ℹ️ Significado y relevancia de Oh*(T)")
+
+    # ── Bloque 1: Oh clásico ──
+    st.markdown("### 1. El número de Ohnesorge clásico")
     st.markdown(
-        r"""
-        ### ¿Qué es el número de Ohnesorge clásico?
+        "El número de Ohnesorge **Oh** caracteriza la competencia entre fuerzas "
+        "viscosas y las combinadas de inercia + tensión superficial en jets y gotas:"
+    )
+    st.latex(r"Oh = \frac{\mu}{\sqrt{\rho \cdot \sigma \cdot L}}")
+    st.markdown(
+        "donde **μ** es la viscosidad dinámica newtoniana (constante para un fluido puro), "
+        "**ρ** la densidad, **σ** la tensión superficial y **L** una longitud característica "
+        "(en este contexto: el diámetro de boquilla D)."
+    )
+    st.markdown("---")
 
-        El número de Ohnesorge **Oh** fue formulado originalmente para caracterizar
-        la competencia entre fuerzas viscosas y las combinadas de inercia + tensión
-        superficial en jets y gotas:
+    # ── Bloque 2: Por qué μ no basta ──
+    st.markdown("### 2. Por qué μ no basta para los semisólidos")
+    st.markdown(
+        "La pasta semisólida de A356 **no es un fluido newtoniano**. Su viscosidad:"
+    )
+    st.markdown(
+        "- **Aumenta** cuando la fracción sólida fₛ crece (al bajar la temperatura).\n"
+        "- **Disminuye** cuando la tasa de corte γ̇ aumenta — comportamiento *shear-thinning* (m = 0.4 < 1).\n\n"
+        "Usar μ constante en Oh equivaldría a ignorar ambos efectos, produciendo "
+        "un único número que no refleja el estado real del proceso."
+    )
+    st.markdown("---")
 
-        $$Oh = \frac{\mu}{\sqrt{\rho \cdot \sigma \cdot L}}$$
+    # ── Bloque 3: La propuesta Oh*(T) ──
+    st.markdown("### 3. La propuesta: Oh\\*(T)")
+    st.markdown(
+        "Se reemplaza μ por la **viscosidad aparente** η(fₛ, γ̇), "
+        "que integra el modelo de Krieger-Dougherty y la ley de potencia:"
+    )
 
-        donde μ es la **viscosidad dinámica newtoniana** (constante para un fluido puro),
-        ρ la densidad, σ la tensión superficial y L una longitud característica.
+    col_eq1, col_eq2 = st.columns([1, 1])
+    with col_eq1:
+        st.markdown("**Viscosidad aparente:**")
+        st.latex(
+            r"\eta(f_s, \dot{\gamma}) = "
+            r"\eta_0 \cdot \left(1 - \frac{f_s}{f_c}\right)^{-n} "
+            r"\cdot \left(\frac{\dot{\gamma}}{\dot{\gamma}_0}\right)^{m-1}"
+        )
+    with col_eq2:
+        st.markdown("**Número de Ohnesorge modificado:**")
+        st.latex(
+            r"Oh^*(T,\,\dot{\gamma},\,D) = "
+            r"\frac{\eta\bigl(f_s(T),\,\dot{\gamma}\bigr)}{\sqrt{\rho \cdot \sigma \cdot D}}"
+        )
 
-        ---
+    st.markdown(
+        "donde fₛ(T) se obtiene mediante la ecuación de Scheil (no equilibrio) "
+        "o la regla de la palanca (equilibrio).\n\n"
+        "**Oh\\*(T) ya no es constante**: es una función del estado de proceso — "
+        "cambia con la temperatura, la tasa de corte y la geometría de la boquilla."
+    )
 
-        ### ¿Por qué μ no basta para los semisólidos?
+    # Variables del modelo
+    with st.expander("Parámetros del modelo η(fₛ, γ̇) — A356"):
+        st.markdown(
+            "| Símbolo | Significado | Valor A356 | Unidad |\n"
+            "|---|---|---|---|\n"
+            "| η₀ | Viscosidad del Al líquido puro | 1.3 × 10⁻³ | Pa·s |\n"
+            "| f꜀ | Fracción sólida crítica (K-D) | 0.60 | adim |\n"
+            "| n | Exponente Krieger-Dougherty | 2.0 | adim |\n"
+            "| m | Índice ley de potencia (shear-thinning) | 0.4 | adim |\n"
+            "| γ̇₀ | Tasa de corte de referencia | 1.0 | s⁻¹ |\n"
+            "| ρ | Densidad semisólida A356 | 2550 | kg/m³ |\n"
+            "| σ | Tensión superficial Al-Si líquido | 0.86 | N/m |"
+        )
+    st.markdown("---")
 
-        La pasta semisólida de A356 **no es un fluido newtoniano**. Su viscosidad:
+    # ── Bloque 4: Zonas de proceso ──
+    st.markdown("### 4. Zonas de proceso para AM semisólida")
+    st.markdown(
+        "| Rango Oh\\* | Régimen físico | Consecuencia para AM |\n"
+        "|---|---|---|\n"
+        "| Oh\\* < 0.1 | Inercia + tensión superficial dominan | ⚡ Chorro inestable / formación de gotas |\n"
+        "| 0.1 ≤ Oh\\* ≤ 10 | Balance viscoso-capilar | ✅ **Depósito controlado y continuo** |\n"
+        "| Oh\\* > 10 | Viscosidad domina | ⛔ Material no fluye por la boquilla |"
+    )
+    st.markdown("---")
 
-        - **Aumenta** cuando la fracción sólida fₛ crece (a menor temperatura).
-        - **Disminuye** cuando la tasa de corte γ̇ aumenta (*shear-thinning*, m = 0.4 < 1).
+    # ── Bloque 5: Shear-thinning en AM ──
+    st.markdown("### 5. El papel del shear-thinning en AM semisólida")
+    st.info(
+        "**Mecanismo clave:** el material se comporta de forma diferente "
+        "dentro y fuera de la boquilla.\n\n"
+        "- **En boquilla** (γ̇ alto → η baja → Oh\\* bajo): fluye con facilidad.\n"
+        "- **Al depositarse** (γ̇ → 0 → η alta → Oh\\* sube × 10–100): retiene la forma.\n\n"
+        "Esta diferencia — cuantificada por el ratio Oh\\*(reposo) / Oh\\*(boquilla) "
+        "que se muestra en las tarjetas de la pestaña Oh\\*(T) — es el fundamento "
+        "reológico de la viabilidad de la AM semisólida."
+    )
+    st.markdown("---")
 
-        Usar μ constante en Oh equivaldría a ignorar ambos efectos, produciendo
-        un único número que no refleja el estado real del proceso.
+    # ── Bloque 6: Relevancia ──
+    st.markdown("### 6. Relevancia para la literatura")
+    st.success(
+        "La integración del modelo de Krieger-Dougherty (fₛ) y la ley de potencia (γ̇) "
+        "dentro de la forma funcional del número de Ohnesorge produce un criterio "
+        "adimensional dependiente de la temperatura que **no existe explícitamente en la "
+        "literatura para aleaciones Al-Si semisólidas**.\n\n"
+        "Oh\\*(T) permite **mapear la ventana de proceso para AM en un único número** "
+        "en lugar de manejar separadamente η, fₛ y P(T). "
+        "Esta es la contribución original del artículo en preparación."
+    )
 
-        ---
-
-        ### La propuesta: Oh\\*(T)
-
-        Se reemplaza μ por la **viscosidad aparente** η(fₛ, γ̇):
-
-        $$Oh^*(T, \dot{\gamma}, D) =
-          \frac{\eta_0 \cdot \left(1 - \dfrac{f_s(T)}{f_c}\right)^{-n}
-          \cdot \left(\dfrac{\dot{\gamma}}{\dot{\gamma}_0}\right)^{m-1}}
-          {\sqrt{\rho \cdot \sigma \cdot D}}$$
-
-        donde fₛ(T) se obtiene mediante la ecuación de Scheil o la regla de la palanca.
-
-        Oh\\*(T) ya **no es constante**: es una función del estado de proceso.
-
-        ---
-
-        ### Zonas de proceso para AM semisólida
-
-        | Rango Oh\\* | Régimen | Consecuencia para AM |
-        |---|---|---|
-        | Oh\\* < 0.1 | Inercia + tensión superficial dominan | Formación de gotas/chorro inestable |
-        | 0.1 ≤ Oh\\* ≤ 10 | Balance viscoso-capilar | **Depósito controlado y continuo** |
-        | Oh\\* > 10 | Viscosidad domina completamente | Material no fluye por la boquilla |
-
-        ---
-
-        ### El papel del shear-thinning en AM
-
-        El mecanismo que hace viable la AM semisólida es precisamente la diferencia entre
-        Oh\\* en boquilla (γ̇ alto → η baja → Oh\\* bajo → fluye) y Oh\\* en reposo
-        (γ̇ ≈ 0 → η alta → Oh\\* alto → retiene forma). Esta herramienta cuantifica
-        ese contraste para cada temperatura y geometría de boquilla.
-
-        ---
-
-        ### Relevancia para la literatura
-
-        La integración de:
-        - El modelo de Krieger-Dougherty para fₛ(T), y
-        - La ley de potencia para shear-thinning,
-
-        dentro de la **forma funcional del número de Ohnesorge**, produce un criterio
-        adimensional dependiente de la temperatura que **no existe explícitamente en la
-        literatura para aleaciones Al-Si semisólidas**. Esta es la contribución original
-        del artículo en preparación.
-
-        **Referencias base del modelo:**
-        - Einstein, A. (1906). Viscosidad de suspensiones diluidas.
-        - Krieger & Dougherty (1959). Mecanismo de flujo no-newtoniano en suspensiones.
-        - Flemings, M.C. (1991). Behavior of metal alloys in the semisolid state.
-        - Spencer et al. (1972). Comportamiento reológico de Sn-15%Pb en solidificación.
-        - Scheil, E. (1942). Remarks on the layer crystal formation.
-        """
+    st.markdown("**Referencias base del modelo:**")
+    st.markdown(
+        "- Einstein, A. (1906). *Eine neue Bestimmung der Moleküldimensionen.*\n"
+        "- Krieger, I.M. & Dougherty, T.J. (1959). *A Mechanism for Non-Newtonian Flow "
+        "in Suspensions of Rigid Spheres.*\n"
+        "- Flemings, M.C. (1991). *Behavior of Metal Alloys in the Semisolid State.* "
+        "Metallurgical Transactions A.\n"
+        "- Spencer et al. (1972). *Rheological Behavior of Sn-15%Pb in the "
+        "Crystallization Range.*\n"
+        "- Scheil, E. (1942). *Bemerkungen zur Schichtkristallbildung.* "
+        "Zeitschrift für Metallkunde."
     )
 
 # ─────────────────────────────────────────────
