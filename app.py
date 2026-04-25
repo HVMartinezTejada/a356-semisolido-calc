@@ -2,10 +2,8 @@
 Calculadora de Proceso Semisólido — Aleación A356
 Oh*(T): Número de Ohnesorge Modificado para Fabricación Aditiva en Estado Semisólido
 
-Autores: JE. Puerta-Altamiranda & HV Martínez-Tejada
-Versión: 1.0 - 2026 
-EXPERIMENTATION AND SIMULATION OF
-ULTRASOUND-ASSISTED SEMISOLID METAL 3D PRINTING 
+Autores: Investigación en curso
+Versión: 1.0
 """
 
 import streamlit as st
@@ -161,23 +159,35 @@ D_mm = st.sidebar.slider(
 D_m = D_mm / 1000.0   # conversión a metros
 
 st.sidebar.subheader("Condiciones de flujo")
+
 gamma_exp = st.sidebar.slider(
-    "Tasa de corte γ̇ en boquilla — escala log₁₀ [s⁻¹]",
+    "γ̇ boquilla — mover para ajustar (escala log₁₀)",
     min_value=-2.0, max_value=3.0, value=1.0, step=0.1,
     format="%.1f",
     help="Tasa de corte característica en la boquilla. "
-         "γ̇ = 0.01 a 1000 s⁻¹. Valores típicos en AM semisólido: 10–100 s⁻¹."
+         "El slider controla el exponente de base 10. "
+         "Valores típicos en AM semisólido: 10–100 s⁻¹ (exponente 1.0–2.0)."
 )
 gamma_dot = 10.0 ** gamma_exp
+st.sidebar.metric(
+    label="→ γ̇ boquilla [s⁻¹]",
+    value=f"{gamma_dot:.3g} s⁻¹",
+    help="Valor real de la tasa de corte en boquilla: γ̇ = 10^(slider)"
+)
 
 gamma_rest_exp = st.sidebar.slider(
-    "Tasa de corte γ̇ en reposo (post-depósito) — log₁₀ [s⁻¹]",
+    "γ̇ reposo post-depósito — mover para ajustar (log₁₀)",
     min_value=-3.0, max_value=0.0, value=-1.5, step=0.1,
     format="%.1f",
-    help="Tasa de corte efectiva del material ya depositado. "
+    help="Tasa de corte del material ya depositado. "
          "Valor bajo (~0.001–0.1 s⁻¹) representa reposo casi estático."
 )
 gamma_rest = 10.0 ** gamma_rest_exp
+st.sidebar.metric(
+    label="→ γ̇ reposo [s⁻¹]",
+    value=f"{gamma_rest:.4g} s⁻¹",
+    help="Valor real de la tasa de corte en reposo: γ̇ = 10^(slider)"
+)
 
 st.sidebar.subheader("Rango de temperatura")
 T_min = st.sidebar.slider("T mínima [°C]", 578, 610, 580, step=1)
@@ -571,27 +581,33 @@ def build_excel(T_arr, fs_s, fs_l, eta_s, eta_l, oh_s, oh_l,
     brd        = Border(left=thin, right=thin, top=thin, bottom=thin)
 
     def write_sheet(ws, title, col_defs, data_cols, note=""):
-        """col_defs: list of (header_str,), data_cols: list of arrays"""
+        """col_defs: list of (header_str,), data_cols: list of arrays/lists.
+        Handles both numeric and string columns correctly."""
         ws.title = title
-        # Nota superior
         ws["A1"] = note
         ws["A1"].font = note_font
         ws.merge_cells(f"A1:{get_column_letter(len(col_defs))}1")
-        # Cabecera
         for ci, (hdr,) in enumerate(col_defs, start=1):
             cell = ws.cell(row=2, column=ci, value=hdr)
             cell.fill = hdr_fill; cell.font = hdr_font
             cell.alignment = center; cell.border = brd
-        # Datos
         for ri, vals in enumerate(zip(*data_cols), start=3):
             for ci, v in enumerate(vals, start=1):
-                cell = ws.cell(row=ri, column=ci, value=round(float(v), 8))
+                cell = ws.cell(row=ri, column=ci)
                 cell.border = brd
                 cell.alignment = center
-                cell.number_format = "0.000000E+00" if abs(float(v)) < 0.01 and v != 0 else "0.0000"
-        # Ancho de columna
+                if isinstance(v, str):
+                    cell.value = v
+                else:
+                    fv = float(v)
+                    cell.value = round(fv, 8)
+                    cell.number_format = (
+                        "0.00000E+00"
+                        if (fv != 0 and abs(fv) < 0.01)
+                        else "0.000000"
+                    )
         for ci in range(1, len(col_defs)+1):
-            ws.column_dimensions[get_column_letter(ci)].width = 22
+            ws.column_dimensions[get_column_letter(ci)].width = 24
 
     # ── Hoja 1: fₛ(T) ──
     ws1 = wb.create_sheet()
